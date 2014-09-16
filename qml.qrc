@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>starIcon.png</file>
+        <file>BeachPlsUI.qml</file>
+        <file>PlayerListDelegate.qml</file>
+        <file>RatingBlock.qml</file>
+        <file>RatingList.qml</file>
+        <file>RatingSlider.qml</file>
+    </qresource>
+</RCC>
