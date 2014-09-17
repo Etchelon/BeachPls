@@ -20,3 +20,9 @@ HEADERS += \
 	BeachPlayer.hpp \
 	Macros.hpp \
 	Engine.hpp
+
+RC_FILE = IconFile.rc
+
+OTHER_FILES += \
+	IconFile.rc \
+	AppIcon.ico

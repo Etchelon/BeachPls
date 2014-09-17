@@ -1,14 +1,14 @@
 import QtQuick 2.2
 
-Rectangle {
+Item {
 	id: root
 
 	property alias skill: label.text
 	property alias rating: rating.rating
 	property alias activeColor: rating.activeColor
 
-	color: "lightgray"
-	border.color: "black"
+//	color: "lightgray"
+//	border.color: "black"
 
 	implicitHeight: label.height + rating.height + rating.anchors.topMargin
 

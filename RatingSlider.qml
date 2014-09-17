@@ -3,7 +3,7 @@ import QtQuick 2.2
 Item {
 	id: root
 
-	property int rating: 1
+	property int rating: 0
 	onRatingChanged:
 	{
 		for (var i = 0; i < rating; ++i)
@@ -34,7 +34,7 @@ Item {
 				height: starHeight
 				radius: 90
 
-				property bool active: index === 0
+				property bool active: false
 				color: active ? root.activeColor : "gray"
 
 				Image {

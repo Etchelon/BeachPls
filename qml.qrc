@@ -6,5 +6,7 @@
         <file>RatingBlock.qml</file>
         <file>RatingList.qml</file>
         <file>RatingSlider.qml</file>
+        <file>checkIcon.png</file>
+        <file>warningIcon.png</file>
     </qresource>
 </RCC>

@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include "Macros.hpp"
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 class BeachPlayer : public QObject
 {
@@ -21,10 +23,13 @@ public:
 	explicit BeachPlayer(QObject* parent = nullptr);
 	BeachPlayer(QString name, double height);
 
+	bool compiled() const;
+
 signals:
 
-public slots:
-
+public:
+	void load_from_xml(QXmlStreamReader& reader);
+	void save_to_xml(QXmlStreamWriter& writer) const;
 };
 
 #endif // BEACHPLAYER_HPP

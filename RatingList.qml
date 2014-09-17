@@ -12,12 +12,12 @@ Flickable {
 	{
 		if (selectedPlayer === null)
 		{
-			attack.rating = 1;
-			pass.rating = 1;
-			serve.rating = 1;
-			set.rating = 1;
-			reaction.rating = 1;
-			discipline.rating = 1;
+			attack.rating = 0;
+			pass.rating = 0;
+			serve.rating = 0;
+			set.rating = 0;
+			reaction.rating = 0;
+			discipline.rating = 0;
 
 			return;
 		}
@@ -34,6 +34,8 @@ Flickable {
 
 	Column {
 		id: column
+
+		property bool compiled: attack.rating > 0 && pass.rating > 0 && serve.rating > 0 && set.rating > 0 && reaction.rating > 0 && discipline.rating > 0
 
 		width: parent.width
 		spacing: 20
@@ -105,13 +107,58 @@ Flickable {
 		}
 	}
 
+	Item {
+		id: indicator
+
+		anchors {
+			top: column.bottom
+			topMargin: 20
+			left: column.left
+			right: column.right
+		}
+
+		height: 50
+		visible: root.active
+
+		Image {
+			id: image
+
+			anchors {
+				left: parent.left
+				top: parent.top
+				bottom: parent.bottom
+			}
+
+			height: parent.height
+			width: height
+
+			source: column.compiled ? "qrc:///checkIcon.png" : "qrc:///warningIcon.png"
+		}
+
+		Text {
+			anchors {
+				left: image.right
+				leftMargin: 10
+				right: parent.right
+				top: parent.top
+				bottom: parent.bottom
+			}
+
+			text: column.compiled ? "Dati salvati" : "Compila tutti i dati"
+			font.pixelSize: parent.height * 0.4
+			verticalAlignment: Text.AlignVCenter
+			horizontalAlignment: Text.AlignHCenter
+			wrapMode: Text.Wrap
+		}
+	}
+
 	Rectangle {
 		id: shade
 
 		anchors.fill: parent
 		color: "black"
-		opacity: 0.5
-		visible: root.active
+		opacity: 0.3
+		visible: !root.active
 
 		MouseArea {
 			anchors.fill: parent

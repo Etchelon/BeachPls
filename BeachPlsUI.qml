@@ -5,9 +5,13 @@ import QtQuick.Window 2.0
 import Logic 1.0
 
 ApplicationWindow {
-	title: qsTr("Beach pls")
+	title: qsTr("Beach pls!")
 	width: 480
+	minimumWidth: width
+	maximumWidth: width
 	height: 800
+	minimumHeight: height
+	maximumHeight: height
 	visible: true
 
 	Engine {
@@ -35,7 +39,7 @@ ApplicationWindow {
 	RatingList {
 		id: ratingList
 
-		active: playerList.currentIndex === -1
+		active: playerList.currentIndex !== -1
 		selectedPlayer: playerList.currentIndex === -1 ? null : playerList.model[playerList.currentIndex]
 		onSelectedPlayerChanged:
 		{

@@ -1,9 +1,19 @@
 #include "Engine.hpp"
 #include "BeachPlayer.hpp"
+#include <QFile>
+#include <QDateTime>
+
+const QString Engine::DbFile = "db.xml";
 
 Engine::Engine(QObject* parent)
 	: QObject{ parent }
 {
+	if (!QFile::exists(DbFile))
+	{
+		QFile databaseFile{ DbFile };
+		databaseFile.open(QIODevice::WriteOnly);
+	}
+
 	m_players.append(new BeachPlayer{ "Fish", 1.74 });
 	m_players.append(new BeachPlayer{ "Vale", 1.65 });
 	m_players.append(new BeachPlayer{ "Luca", 1.96 });
@@ -25,7 +35,96 @@ Engine::Engine(QObject* parent)
 	m_players.append(new BeachPlayer{ "Fabbro", 1.70 });
 }
 
+Engine::~Engine()
+{
+	save_to_db();
+}
+
 QList<QObject*> Engine::players() const
 {
 	return m_players;
+}
+
+void Engine::load_from_db()
+{
+	QFile databaseFile{ DbFile };
+	if (!databaseFile.open(QIODevice::ReadOnly))
+		throw std::runtime_error("Could not open the database file for saving the image. Try with a restart or check if the database.xml file is in the folder");
+
+	QXmlStreamReader reader{ &databaseFile };
+
+	while (!reader.atEnd())
+	{
+		if (reader.isStartElement() && reader.name() == "Player")
+		{
+			BeachPlayer* player = new BeachPlayer;
+			player->load_from_xml(reader);
+
+			m_players.append(player);
+		}
+
+		reader.readNext();
+	}
+}
+
+void Engine::save_to_db()
+{
+	bool save = false;
+	for (QObject* player : m_players)
+		if ((static_cast<BeachPlayer*>(player))->compiled())
+		{
+			save = true;
+			break;
+		}
+
+	if (!save)
+		return;
+
+	// Open the database file to append the new image info
+	QFile databaseFile{ DbFile };
+
+	QFile tempFile{ "temp.xml" };
+	if (!tempFile.open(QIODevice::WriteOnly))
+		throw std::runtime_error{ "Could not open the temp file for saving the image to the database" };
+
+	QXmlStreamWriter writer{ &tempFile };
+	writer.setAutoFormatting(true);
+	writer.setAutoFormattingIndent(4);
+
+	// Start writing
+	writer.writeStartDocument();
+	writer.writeStartElement("Players");
+	writer.writeAttribute("Timestamp", QDateTime::currentDateTime().toString());
+
+	// Appended here the image data
+	for (QObject* player : m_players)
+		(static_cast<BeachPlayer*>(player))->save_to_xml(writer);
+
+	writer.writeEndElement();				// Players
+	writer.writeEndDocument();				// Document
+
+	// Append the old data
+	if (databaseFile.exists() && databaseFile.open(QIODevice::ReadOnly))
+	{
+		databaseFile.readLine();
+		tempFile.write("\n");
+		tempFile.write(databaseFile.readAll());
+	}
+
+	// Switch the temporary with the old file
+	tempFile.close();
+
+	if (databaseFile.exists() && !databaseFile.rename("olddb.xml"))
+	{
+		tempFile.remove();
+		throw std::runtime_error{ "Could not rename the old database file for deletion; couldn't save the info about images to the database" };
+	}
+
+	if (!tempFile.rename(DbFile))
+	{
+		databaseFile.rename(DbFile);
+		throw std::runtime_error{ "Could not rename the temp file for deletion; couldn't save the info about images to the database" };
+	}
+	else
+		databaseFile.remove();
 }
