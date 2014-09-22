@@ -1,13 +1,21 @@
 #include "Engine.hpp"
 #include "BeachPlayer.hpp"
+#include <QDir>
 #include <QFile>
 #include <QDateTime>
 
-const QString Engine::DbFile = "db.xml";
+const QString Engine::AppFolder = QDir::homePath() + "/AppData/Roaming/BeachPls/";
+const QString Engine::DbFile = Engine::AppFolder + "db.xml";
 
 Engine::Engine(QObject* parent)
 	: QObject{ parent }
 {
+	QDir path{ AppFolder };
+
+	// Check for the existence of support folders; create if they don't exist
+	if (!path.exists())
+		path.mkpath(".");
+
 	if (!QFile::exists(DbFile))
 	{
 		QFile databaseFile{ DbFile };
@@ -16,8 +24,9 @@ Engine::Engine(QObject* parent)
 
 	m_players.append(new BeachPlayer{ "Fish", 1.74 });
 	m_players.append(new BeachPlayer{ "Vale", 1.65 });
-	m_players.append(new BeachPlayer{ "Luca", 1.96 });
 	m_players.append(new BeachPlayer{ "Phil", 1.70 });
+	m_players.append(new BeachPlayer{ "Regia", 1.80 });
+	m_players.append(new BeachPlayer{ "Luca", 1.96 });
 	m_players.append(new BeachPlayer{ "Bad", 1.72 });
 	m_players.append(new BeachPlayer{ "Peppo", 1.72 });
 	m_players.append(new BeachPlayer{ "Roby", 1.74 });
@@ -26,7 +35,6 @@ Engine::Engine(QObject* parent)
 	m_players.append(new BeachPlayer{ "Ila", 1.65 });
 	m_players.append(new BeachPlayer{ "Mari", 1.78 });
 	m_players.append(new BeachPlayer{ "Giulia", 1.74 });
-	m_players.append(new BeachPlayer{ "Regia", 1.80 });
 	m_players.append(new BeachPlayer{ "Alby", 1.82 });
 	m_players.append(new BeachPlayer{ "Silvia", 1.68 });
 	m_players.append(new BeachPlayer{ "Mema", 1.70 });
@@ -83,7 +91,7 @@ void Engine::save_to_db()
 	// Open the database file to append the new image info
 	QFile databaseFile{ DbFile };
 
-	QFile tempFile{ "temp.xml" };
+	QFile tempFile{ AppFolder + "temp.xml" };
 	if (!tempFile.open(QIODevice::WriteOnly))
 		throw std::runtime_error{ "Could not open the temp file for saving the image to the database" };
 
@@ -114,7 +122,7 @@ void Engine::save_to_db()
 	// Switch the temporary with the old file
 	tempFile.close();
 
-	if (databaseFile.exists() && !databaseFile.rename("olddb.xml"))
+	if (databaseFile.exists() && !databaseFile.rename(AppFolder + "olddb.xml"))
 	{
 		tempFile.remove();
 		throw std::runtime_error{ "Could not rename the old database file for deletion; couldn't save the info about images to the database" };

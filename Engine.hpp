@@ -11,6 +11,7 @@ class Engine : public QObject
 	Q_PROPERTY(QList<QObject*> players READ players CONSTANT)
 
 private:
+	static const QString AppFolder;
 	static const QString DbFile;
 	QList<QObject*> m_players;
 
