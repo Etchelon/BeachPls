@@ -1,4 +1,6 @@
 #include "BeachPlayer.hpp"
+#include <QDebug>
+#include <QDateTime>
 
 BeachPlayer::BeachPlayer(QObject* parent)
 	: QObject{ parent }
@@ -26,82 +28,36 @@ bool BeachPlayer::compiled() const
 			m_discipline != 0;
 }
 
-void BeachPlayer::load_from_xml(QXmlStreamReader& reader)
+void BeachPlayer::load_from_json(const QJsonObject& json)
 {
-	reader.readNextStartElement();
+	m_name = json.value("name").toString();
+	m_height = json.value("height").toDouble();
 
-	// Assume this function is called after encountering the opening <Player> tag
-	while (!reader.atEnd())
-	{
-		if (reader.isStartElement() && reader.name() == "Name")
-			m_name = reader.readElementText();
-
-		else if (reader.isStartElement() && reader.name() == "Height")
-			m_height = reader.readElementText().toDouble();
-
-		else if (reader.isStartElement() && reader.name() == "Attack")
-			m_attack = reader.readElementText().toInt();
-
-		else if (reader.isStartElement() && reader.name() == "Pass")
-			m_pass = reader.readElementText().toInt();
-
-		else if (reader.isStartElement() && reader.name() == "Serve")
-			m_serve = reader.readElementText().toInt();
-
-		else if (reader.isStartElement() && reader.name() == "Set")
-			m_set = reader.readElementText().toInt();
-
-		else if (reader.isStartElement() && reader.name() == "Reaction")
-			m_reaction = reader.readElementText().toInt();
-
-		else if (reader.isStartElement() && reader.name() == "Discipline")
-			m_discipline = reader.readElementText().toInt();
-
-		else
-			throw std::runtime_error{ "Unknown tag while reading image from xml; tag: " + reader.readElementText().toStdString() };
-
-		reader.readNextStartElement();
-	}
+	QJsonObject ratings = json.value("ratings").toObject();
+	m_attack = ratings.value("attack").toInt();
+	m_pass = ratings.value("pass").toInt();
+	m_serve = ratings.value("serve").toInt();
+	m_set = ratings.value("set").toInt();
+	m_reaction = ratings.value("reaction").toInt();
+	m_discipline = ratings.value("discipline").toInt();
 }
 
-void BeachPlayer::save_to_xml(QXmlStreamWriter& writer) const
+QJsonObject BeachPlayer::get_json() const
 {
-	if (!compiled())
-		return;
+	QJsonObject ret;
+	ret["name"] = m_name;
+	ret["height"] = m_height;
 
-	writer.writeStartElement("Player");
+	QJsonObject ratings;
+	ratings["attack"] = m_attack;
+	ratings["pass"] = m_pass;
+	ratings["serve"] = m_serve;
+	ratings["set"] = m_set;
+	ratings["reaction"] = m_reaction;
+	ratings["discipline"] = m_discipline;
 
-	writer.writeStartElement("Name");
-	writer.writeCharacters(m_name);
-	writer.writeEndElement();				// Name
+	ret["ratings"] = ratings;
 
-	writer.writeStartElement("Height");
-	writer.writeCharacters(QString::number(m_height));
-	writer.writeEndElement();				// Height
-
-	writer.writeStartElement("Attack");
-	writer.writeCharacters(QString::number(m_attack));
-	writer.writeEndElement();				// Attack
-
-	writer.writeStartElement("Pass");
-	writer.writeCharacters(QString::number(m_pass));
-	writer.writeEndElement();				// Pass
-
-	writer.writeStartElement("Serve");
-	writer.writeCharacters(QString::number(m_serve));
-	writer.writeEndElement();				// Serve
-
-	writer.writeStartElement("Set");
-	writer.writeCharacters(QString::number(m_set));
-	writer.writeEndElement();				// Set
-
-	writer.writeStartElement("Reaction");
-	writer.writeCharacters(QString::number(m_reaction));
-	writer.writeEndElement();				// Reaction
-
-	writer.writeStartElement("Discipline");
-	writer.writeCharacters(QString::number(m_discipline));
-	writer.writeEndElement();				// Discipline
-
-	writer.writeEndElement();				// Player
+	return ret;
 }
+

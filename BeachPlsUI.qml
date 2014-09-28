@@ -58,4 +58,17 @@ ApplicationWindow {
 			rightMargin: 10
 		}
 	}
+
+	Button {
+		anchors {
+			bottom: ratingList.bottom
+			bottomMargin: 10
+			horizontalCenter: ratingList.horizontalCenter
+		}
+		width: 100
+		height: 50
+
+		text: "Submit!"
+		onClicked: engine.submit_to_server();
+	}
 }

@@ -5,6 +5,7 @@
 #include "Macros.hpp"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
+#include <QJsonObject>
 
 class BeachPlayer : public QObject
 {
@@ -28,8 +29,8 @@ public:
 signals:
 
 public:
-	void load_from_xml(QXmlStreamReader& reader);
-	void save_to_xml(QXmlStreamWriter& writer) const;
+	void load_from_json(const QJsonObject& json);
+	QJsonObject get_json() const;
 };
 
 #endif // BEACHPLAYER_HPP
