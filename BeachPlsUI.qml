@@ -71,4 +71,62 @@ ApplicationWindow {
 		text: "Submit!"
 		onClicked: engine.submit_to_server();
 	}
+
+	Rectangle {
+		id: loginPage
+
+		width: parent.width
+		height: parent.height
+		Behavior on y {
+			NumberAnimation { duration: 300 }
+		}
+		color: "white"
+
+		MouseArea {
+			anchors.fill: parent
+			onClicked: console.log("Touch well");
+		}
+
+		TextField {
+			id: usernameTI
+
+			anchors.centerIn: parent
+			width: parent.width * 0.75
+			height: 50
+		}
+
+		TextField {
+			id: passwordTI
+
+			anchors {
+				top: usernameTI.bottom
+				topMargin: 10
+				horizontalCenter: usernameTI.horizontalCenter
+			}
+			width: parent.width * 0.75
+			height: 50
+
+			echoMode: TextInput.Password
+		}
+
+		Button {
+			anchors {
+				top: passwordTI.bottom
+				topMargin: 10
+				horizontalCenter: passwordTI.horizontalCenter
+			}
+			width: 300
+			height: 50
+
+			text: "Login!"
+
+			onClicked:
+			{
+				engine.username = usernameTI.text
+				engine.password = passwordTI.text
+				engine.login();
+				loginPage.y = loginPage.height
+			}
+		}
+	}
 }

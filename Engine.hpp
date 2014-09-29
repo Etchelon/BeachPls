@@ -12,6 +12,8 @@ class Engine : public QObject
 {
 	Q_OBJECT
 	Q_PROPERTY(QList<QObject*> players READ players CONSTANT)
+	Q_PROPERTY(QString username READ username WRITE set_username NOTIFY usernameChanged)
+	Q_PROPERTY(QString password READ password WRITE set_password NOTIFY passwordChanged)
 
 public:
 	enum class Action
@@ -26,6 +28,8 @@ private:
 	static const QString AppFolder;
 	static const QString DbFile;
 	QList<QObject*> m_players;
+	QString m_username;
+	QString m_password;
 
 	QNetworkAccessManager m_manager;
 	QString m_beachPlsWebServiceUrl = "http://localhost:57370/WebServices/Service.asmx/";
@@ -35,6 +39,10 @@ public:
 	~Engine();
 
 	QList<QObject*> players() const;
+	QString username() const;
+	QString password() const;
+	void set_username(QString newUsername);
+	void set_password(QString newPassword);
 
 private:
 	void load_from_db();
@@ -42,6 +50,8 @@ private:
 	QByteArray get_json_data() const;
 
 signals:
+	void usernameChanged();
+	void passwordChanged();
 
 public Q_SLOTS:
 	void login();

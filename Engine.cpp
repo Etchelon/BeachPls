@@ -51,7 +51,7 @@ Engine::Engine(QObject* parent)
 
 	load_from_db();
 
-	login();
+//	login();
 }
 
 Engine::~Engine()
@@ -64,6 +64,34 @@ QList<QObject*> Engine::players() const
 	return m_players;
 }
 
+QString Engine::username() const
+{
+	return m_username;
+}
+
+QString Engine::password() const
+{
+	return m_password;
+}
+
+void Engine::set_username(QString newUsername)
+{
+	if (m_username != newUsername)
+	{
+		m_username = newUsername;
+		emit usernameChanged();
+	}
+}
+
+void Engine::set_password(QString newPassword)
+{
+	if (m_password != newPassword)
+	{
+		m_password = newPassword;
+		emit passwordChanged();
+	}
+}
+
 void Engine::load_from_db()
 {
 	QFile databaseFile{ DbFile };
@@ -71,14 +99,16 @@ void Engine::load_from_db()
 		throw std::runtime_error("Could not open the database file. Try with a restart or check if the db.xml file is in the folder");
 
 	QString file{ databaseFile.readAll() };
+	qDebug() << "Save file content:\n" << file << endl;
 
-	static const QRegularExpression regex1{ R"((?<record>\s*\[Timestamp='([a-zA-Z0-9: ]+)'\]([\[\]{}\",\w\d: \n]+)\[EndTimestamp\]\s*))" };
-	static const QRegularExpression regex2{ R"(\[Timestamp='(?<timestamp>[a-zA-Z0-9: ]+)'\](?<content>[\[\]{}\",\w\d: \n]+)\[EndTimestamp\])" };
+	static const QRegularExpression regex1{ R"((?<record>\s*\[Timestamp='[a-zA-Z0-9: ]+'\]\s*([\[\]{}\",\.\w\d: \n]+)\s*\[EndTimestamp\]\s*))" };
+	static const QRegularExpression regex2{ R"(\[Timestamp='(?<timestamp>[a-zA-Z0-9: ]+)'\](?<content>[\[\]{}\",\.\w\d: \n]+)\[EndTimestamp\])" };
 
 	QRegularExpressionMatchIterator it = regex1.globalMatch(file);
 	while (it.hasNext())
 	{
 		QString record = it.next().captured("record");
+		qDebug() << "Batch of data:\n" << record << endl;
 		auto match = regex2.match(record);
 
 		QDateTime date = QDateTime::fromString(match.captured("timestamp"));
@@ -86,6 +116,7 @@ void Engine::load_from_db()
 		for (QJsonValue val : data)
 		{
 			QJsonObject obj = val.toObject();
+			qDebug() << "Player in this batch of data: " << obj.value("name").toString() << endl;
 
 			auto playerPtr = std::find_if(std::begin(m_players), std::end(m_players), [&obj](QObject* p){
 				return (static_cast<BeachPlayer*>(p))->name() == obj.value("name").toString();
