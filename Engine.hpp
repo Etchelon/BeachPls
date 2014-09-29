@@ -27,12 +27,14 @@ public:
 private:
 	static const QString AppFolder;
 	static const QString DbFile;
+	static const QString SettingsFile;
 	QList<QObject*> m_players;
-	QString m_username;
-	QString m_password;
+	QString m_username = QString::null;
+	QString m_password = QString::null;
 
 	QNetworkAccessManager m_manager;
-	QString m_beachPlsWebServiceUrl = "http://localhost:57370/WebServices/Service.asmx/";
+//	QString m_beachPlsWebServiceUrl = "http://localhost:57370/WebServices/Service.asmx/";
+	QString m_beachPlsWebServiceUrl = "http://beachpls.azurewebsites.net/WebServices/Service.asmx/";
 
 public:
 	explicit Engine(QObject* parent = nullptr);

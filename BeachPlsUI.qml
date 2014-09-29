@@ -5,6 +5,8 @@ import QtQuick.Window 2.0
 import Logic 1.0
 
 ApplicationWindow {
+	id: app
+
 	title: qsTr("Beach pls!")
 	width: 480
 	minimumWidth: width
@@ -14,8 +16,17 @@ ApplicationWindow {
 	maximumHeight: height
 	visible: true
 
+	property bool ready: false
+
 	Engine {
 		id: engine
+
+		Component.onCompleted:
+		{
+			app.ready = true;
+			if (!username)
+				loginPage.show();
+		}
 	}
 
 	ListView{
@@ -68,17 +79,28 @@ ApplicationWindow {
 		width: 100
 		height: 50
 
-		text: "Submit!"
+		text: "Invia dati!"
 		onClicked: engine.submit_to_server();
 	}
 
 	Rectangle {
 		id: loginPage
 
+		function show()
+		{
+			loginPage.y = 0;
+		}
+
+		function hide()
+		{
+			loginPage.y = height;
+		}
+
 		width: parent.width
 		height: parent.height
+		y: height
 		Behavior on y {
-			NumberAnimation { duration: 300 }
+			NumberAnimation { duration: app.ready ? 300 : 0 }
 		}
 		color: "white"
 
@@ -93,6 +115,8 @@ ApplicationWindow {
 			anchors.centerIn: parent
 			width: parent.width * 0.75
 			height: 50
+
+			font.pixelSize: height * 0.65
 		}
 
 		TextField {
@@ -106,6 +130,7 @@ ApplicationWindow {
 			width: parent.width * 0.75
 			height: 50
 
+			font.pixelSize: height * 0.65
 			echoMode: TextInput.Password
 		}
 
@@ -125,7 +150,7 @@ ApplicationWindow {
 				engine.username = usernameTI.text
 				engine.password = passwordTI.text
 				engine.login();
-				loginPage.y = loginPage.height
+				loginPage.hide();
 			}
 		}
 	}

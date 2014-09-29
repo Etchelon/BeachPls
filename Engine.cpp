@@ -11,6 +11,7 @@
 
 const QString Engine::AppFolder = QDir::homePath() + "/AppData/Roaming/BeachPls/";
 const QString Engine::DbFile = Engine::AppFolder + "db.xml";
+const QString Engine::SettingsFile = Engine::AppFolder + "beachpls.config";
 
 Engine::Engine(QObject* parent)
 	: QObject{ parent }
@@ -27,6 +28,25 @@ Engine::Engine(QObject* parent)
 	{
 		QFile databaseFile{ DbFile };
 		databaseFile.open(QIODevice::WriteOnly);
+	}
+
+	if (!QFile::exists(SettingsFile))
+	{
+		QFile settingsFile{ SettingsFile };
+		settingsFile.open(QIODevice::WriteOnly);
+	}
+	else
+	{
+		QFile settingsFile{ SettingsFile };
+		settingsFile.open(QIODevice::ReadOnly);
+
+		QString line{ settingsFile.readAll() };
+		auto splits = line.split(';');
+		if (splits.size() == 2)
+		{
+			m_username = splits[0];
+			m_password = splits[1];
+		}
 	}
 
 	m_players.append(new BeachPlayer{ "Fish", 1.74 });
@@ -51,7 +71,8 @@ Engine::Engine(QObject* parent)
 
 	load_from_db();
 
-//	login();
+	if (m_username != QString::null)
+		login();
 }
 
 Engine::~Engine()
@@ -131,6 +152,16 @@ void Engine::load_from_db()
 
 void Engine::save_to_db()
 {
+	if (m_username != QString::null)
+	{
+		QFile settingsFile{ SettingsFile };
+		if (!settingsFile.open(QIODevice::WriteOnly))
+			throw std::runtime_error{ "Could not open the temp file for saving the image to the database" };
+
+		settingsFile.write((m_username + ';' + m_password).toUtf8());
+		settingsFile.close();
+	}
+
 	bool save = false;
 	for (QObject* player : m_players)
 		if ((static_cast<BeachPlayer*>(player))->compiled())
@@ -194,8 +225,8 @@ QByteArray Engine::get_json_data() const
 void Engine::login()
 {
 	QJsonObject params;
-	params["username"] = "Etchelon";
-	params["password"] = "caccapupu85";
+	params["username"] = m_username;
+	params["password"] = m_password;
 
 	QNetworkRequest request{ m_beachPlsWebServiceUrl + "Login" };
 	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
