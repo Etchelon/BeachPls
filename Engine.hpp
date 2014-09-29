@@ -54,6 +54,10 @@ private:
 signals:
 	void usernameChanged();
 	void passwordChanged();
+	void loginSuccess();
+	void loginFailed();
+	void ratingsSubmittedSuccessfully();
+	void ratingsNotSubmitted();
 
 public Q_SLOTS:
 	void login();

@@ -71,6 +71,8 @@ ApplicationWindow {
 	}
 
 	Button {
+		id: submitButton
+
 		anchors {
 			bottom: ratingList.bottom
 			bottomMargin: 10
@@ -81,6 +83,34 @@ ApplicationWindow {
 
 		text: "Invia dati!"
 		onClicked: engine.submit_to_server();
+	}
+
+	Image {
+		id: image
+
+		anchors {
+			left: submitButton.right
+			leftMargin: 10
+			verticalCenter: submitButton.verticalCenter
+		}
+
+		height: submitButton.height
+		width: height
+		visible: false
+
+		Connections {
+			target: engine
+			onRatingsSubmittedSuccessfully:
+			{
+				image.source = "qrc:///checkIcon.png";
+				image.visible = true;
+			}
+			onRatingsNotSubmitted:
+			{
+				image.source = "qrc:///warningIcon.png";
+				image.visible = true;
+			}
+		}
 	}
 
 	Rectangle {
@@ -109,10 +139,23 @@ ApplicationWindow {
 			onClicked: console.log("Touch well");
 		}
 
+		Text {
+			anchors {
+				top: parent.top
+				topMargin: 50
+				horizontalCenter: parent.horizontalCenter
+			}
+
+			text: "Login"
+			font.bold: true
+			font.pixelSize: 32
+		}
+
 		TextField {
 			id: usernameTI
 
 			anchors.centerIn: parent
+			anchors.verticalCenterOffset: -50
 			width: parent.width * 0.75
 			height: 50
 
@@ -135,6 +178,8 @@ ApplicationWindow {
 		}
 
 		Button {
+			id: loginButton
+
 			anchors {
 				top: passwordTI.bottom
 				topMargin: 10
@@ -147,10 +192,37 @@ ApplicationWindow {
 
 			onClicked:
 			{
+				progressBar.visible = true;
 				engine.username = usernameTI.text
 				engine.password = passwordTI.text
 				engine.login();
-				loginPage.hide();
+			}
+		}
+
+		ProgressBar {
+			id: progressBar
+
+			anchors {
+				top: loginButton.bottom
+				topMargin: 10
+				horizontalCenter: loginButton.horizontalCenter
+			}
+
+			indeterminate: true
+			width: 200
+			visible: false
+
+			Connections {
+				target: engine
+				onLoginSuccess:
+				{
+					progressBar.visible = false;
+					loginPage.hide();
+				}
+				onLoginFailed:
+				{
+					progressBar.visible = false;
+				}
 			}
 		}
 	}

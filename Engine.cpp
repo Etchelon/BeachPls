@@ -255,18 +255,27 @@ void Engine::reply_ready(QNetworkReply* reply)
 	if (error)
 		qDebug() << "PARSE ERROR! " << error->errorString() << endl << endl;
 
-//	if (doc.isObject())
-//	{
-//		QJsonObject obj = doc.object();
+	QString requestUrl = reply->request().url().toString();
+	int lastSlash = requestUrl.lastIndexOf('/');
+	QString action = requestUrl.right(requestUrl.length() - (lastSlash + 1));
+	qDebug() << "Action: " << action << endl;
 
-//		if (!obj.empty() && obj.value("success").toBool())
-//		{
-//			QJsonValue date = obj.value("date");
-
-//			if (date.isString())
-//				qDebug() << "Retrieved date: " << QDateTime::fromString(date.toString(), Qt::DateFormat::ISODate) << endl << endl;
-//		}
-//	}
+	if (action == "Login")
+	{
+		bool success = doc.object().value("d").toBool();
+		if (success)
+			emit loginSuccess();
+		else
+			emit loginFailed();
+	}
+	else if (action == "SubmitRatings")
+	{
+		bool success = doc.object().value("d").toBool();
+		if (success)
+			emit ratingsSubmittedSuccessfully();
+		else
+			emit ratingsNotSubmitted();
+	}
 
 	return;
 }
